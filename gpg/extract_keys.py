@@ -49,7 +49,7 @@ try:
                 print('subkey size =', (len(primary_keyp)+len(primary_keyq))*8, 'bits')
 
                 filename = subkey+'-raw.hex'
-                with open(filename, as 'w') as f:
+                with open(filename, 'w') as f:
                     f.write(subkey_hexbytes)
                 print("Saved key to", filename)
         else:
@@ -88,7 +88,7 @@ except:
                     subkey_hexbytes = "".join(["%02x" % c for c in sub_key])
 
                 filename = subkey+'-raw.hex'
-                with open(filename, as 'w') as f:
+                with open(filename, 'w') as f:
                     f.write(subkey_hexbytes)
                 print("Saved key to", filename)
             # subkey is no longer unlocked
