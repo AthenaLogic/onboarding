@@ -52,7 +52,7 @@ try:
                 print('subkey size =', (len(primary_keyp)+len(primary_keyq))*8, 'bits')
 
                 keypath = Path(gpghomedir+'/'+subkey+'-raw.hex')
-                keypath.write(subkey_hexbytes)
+                keypath.write_text(subkey_hexbytes)
                 print("Saved key to", keypath)
         else:
             print('rootkey value:')
@@ -68,7 +68,7 @@ try:
                 print(subkey_hexbytes)
 
                 keypath = Path(gpghomedir+'/'+subkey+'-raw.hex')
-                keypath.write(subkey_hexbytes)
+                keypath.write_text(subkey_hexbytes)
                 print("Saved key to", keypath)
 
 except Exception as e0:
@@ -97,7 +97,7 @@ except Exception as e0:
 
                 print(subkey_hexbytes)
                 keypath = Path(gpghomedir+'/'+subkey+'-raw.hex')
-                keypath.write(subkey_hexbytes)
+                keypath.write_text(subkey_hexbytes)
                 print("Saved key to", keypath)
             # subkey is no longer unlocked
             assert value.is_unlocked is False
