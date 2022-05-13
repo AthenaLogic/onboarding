@@ -16,7 +16,7 @@ gpghomedir = os.environ['GNUPGHOME']
 if gpghomedir[-1] == "/"
 gpghomedir = gpghomedir[:-1]
 
-(rootkey, _) = pgpy.PGPKey.from_file(gpghomedir + '/export/chain.asc')
+(rootkey, _) = pgpy.PGPKey.from_file(gpghomedir + '/mastersub.asc')
 
 # Run the script and raw keys will be displayed. Only run this on a
 # secure trusted system.
@@ -44,8 +44,14 @@ try:
                 sub_keyp = long_to_bytes(value._key.keymaterial.p)
                 sub_keyq = long_to_bytes(value._key.keymaterial.q)
                 print('subkey value')
-                print(("".join(["%02x" % c for c in sub_keyp])) + ("".join(["%02x" % c for c in sub_keyq])))
+                subkey_hexbytes = ""
+                subkey_hexbytes = "".join(["%02x" % c for c in sub_keyp])) + "".join(["%02x" % c for c in sub_keyq])
                 print('subkey size =', (len(primary_keyp)+len(primary_keyq))*8, 'bits')
+
+                filename = subkey+'-raw.hex'
+                with open(filename, as 'w') as f:
+                    f.write(subkey_hexbytes)
+                print("Saved key to", filename)
         else:
             print('rootkey value:')
             #Parse ed25519 pgp key

@@ -18,12 +18,12 @@ git clone https://github.com/AthenaLogic/onboarding.git
 
 mac:
 ```console
-$ brew install gnupg
+$ brew install gnupg hopenpgp-tools paperkey secure-delete
 ```
 
 linux:
 ```console
-# apt -y install wget gnupg2 gnupg-agent dirmngr cryptsetup paperkey
+# apt -y install wget gnupg2 gnupg-agent dirmngr cryptsetup paperkey hopenpgp-tools secure-delete
 ```
 
 Run the "download_files.sh" script to alleviate entering in all the links:
@@ -43,7 +43,7 @@ $ sudo -s
 # apt update && apt upgrade
 # apt install python3-pip python3-tk libusb-1.0-0-dev libudev-dev
 # exit
-$ pip3 install -r onboarding/requirements.txt
+$ pip3 install -r onboarding/gpg/requirements.txt
 $ sudo -s
 # cp 49-onlykey.rules /etc/udev/rules.d/
 # udevadm control --reload-rules && udevadm trigger
@@ -64,6 +64,7 @@ However, if you are like me and are booting off a disk you will protect via othe
 
 ```console
 $ export GNUPGHOME=~/gnupg-workspace
+$ mkdir -p $GNUPGHOME
 ```
 
 Either way, secure this folder:
@@ -155,6 +156,15 @@ Please select what kind of key you want:
 Your selection? 11
 Possible actions for a RSA key: Sign Certify Authenticate
 Current allowed actions: Sign Certify
+
+   (S) Toggle the sign capability
+   (E) Toggle the encrypt capability
+   (A) Toggle the authenticate capability
+   (Q) Finished
+
+Your selection? s
+Possible actions for a RSA key: Sign Certify Authenticate
+Current allowed actions: Certify
 
    (S) Toggle the sign capability
    (E) Toggle the encrypt capability
@@ -298,7 +308,7 @@ disks) during the prime generation; this gives the random number
 generator a better chance to gain enough entropy.
 
 sec  ed25519/0xFF3E7D88647EBCDB
-     created: 2022-05-12  expires: never       usage: SC
+     created: 2022-05-12  expires: never       usage: C
      trust: ultimate      validity: ultimate
 ssb  cv25519/A152BC2633C9CC4B
      created: 2022-05-12  expires: never       usage: E
@@ -436,7 +446,7 @@ disks) during the prime generation; this gives the random number
 generator a better chance to gain enough entropy.
 
 sec  ed25519/0xFF3E7D88647EBCDB
-     created: 2022-05-12  expires: never       usage: SC
+     created: 2022-05-12  expires: never       usage: C
      trust: ultimate      validity: ultimate
 ssb  ed25519/0xB840CE4D7C47C87D
      created: 2022-05-12  expires: 2023-05-12  usage: S
@@ -588,9 +598,9 @@ The master key and sub-keys will be encrypted with your passphrase when exported
 Save a copy of your keys:
 
 ```console
-$ gpg --armor --export-secret-keys $KEYID > $GNUPGHOME/mastersub.key
+$ gpg --armor --export-secret-keys $KEYID > $GNUPGHOME/mastersub.asc
 
-$ gpg --armor --export-secret-subkeys $KEYID > $GNUPGHOME/sub.key
+$ gpg --armor --export-secret-subkeys $KEYID > $GNUPGHOME/export/subkeys.asc
 ```
 
 # Revocation certificate
@@ -602,7 +612,7 @@ Even worse, we cannot advertise this fact in any way to those that are using our
 To create the revocation certificate:
 
 ``` console
-$ gpg --output $GNUPGHOME/revoke.asc --gen-revoke $KEYID
+$ gpg --output $GNUPGHOME/revoke-root.asc --gen-revoke $KEYID
 ```
 
 The `revoke.asc` certificate file should be stored (or printed) in a (secondary) place that allows retrieval in case the main backup fails.
@@ -637,7 +647,7 @@ We'll use the relatively weak zip encryption, because I need to transfer the fil
 $ mkdir ~/gpg-backup
 $ sudo cp -avi $GNUPGHOME ~/gpg-backup/
 $ zip -r -e gpg-backup.zip ~/gpg-backup/
-$ cp gpg-backup.zip /mnt/usb/gpg-backup
+$ cp gpg-backup.zip /mnt/usb/
 ```
 
 # Upload keys to keyserver
@@ -649,6 +659,8 @@ $ gpg --keyserver hkps://keys.openpgp.org --send-key $KEYID
 $ gpg --keyserver pgp.mit.edu --send-key $KEYID
 $ gpg --gpg --keyserver hkps://keyserver.ubuntu.com:443 --send-key $KEYID
 ```
+
+Openpgp.org will send you an email that you have to respond to in order to prove you own that email address.
 
 After some time, the public key will propagate to [other](https://pgp.key-server.io/pks/lookup?search=doc%40duh.to&fingerprint=on&op=vindex) [servers](https://pgp.mit.edu/pks/lookup?search=doc%40duh.to&op=index).
 
