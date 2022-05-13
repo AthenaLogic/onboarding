@@ -71,7 +71,7 @@ try:
                 keypath.write(subkey_hexbytes)
                 print("Saved key to", keypath)
 
-except as e0:
+except Exception as e0:
     print(e0)
     print('Unlocking root key failed, attempting rootless subkey unlock.')
     try:
@@ -104,7 +104,7 @@ except as e0:
 
             print()
 
-    except as e1:
+    except Exception as e1:
         print(e1)
         print('Unlocking failed')
 
