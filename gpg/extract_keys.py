@@ -2,6 +2,7 @@
 import os
 import sys
 import pgpy
+from Pathlib import Path
 from Crypto.Util.number import long_to_bytes
 
 # This python script can parse the private keys out of OpenPGP keys (ed25519 or RSA).
@@ -46,11 +47,11 @@ try:
                 print('subkey value')
                 subkey_hexbytes = ""
                 subkey_hexbytes = "".join(["%02x" % c for c in sub_keyp]) + "".join(["%02x" % c for c in sub_keyq])
+                print(subkey_hexbytes)
                 print('subkey size =', (len(primary_keyp)+len(primary_keyq))*8, 'bits')
 
-                filename = subkey+'-raw.hex'
-                with open(filename, 'w') as f:
-                    f.write(subkey_hexbytes)
+                keypath = Path(gpghomedir+subkey+'-raw.hex')
+                keypath.write(subkey_hexbytes)
                 print("Saved key to", filename)
         else:
             print('rootkey value:')
@@ -62,7 +63,12 @@ try:
                 print('subkey id', subkey)
                 sub_key = long_to_bytes(value._key.keymaterial.s)
                 print('subkey value')
-                print("".join(["%02x" % c for c in sub_key]))
+                subkey_hexbytes = "".join(["%02x" % c for c in sub_key])
+                print(subkey_hexbytes)
+
+                keypath = Path(gpghomedir+subkey+'-raw.hex')
+                keypath.write(subkey_hexbytes)
+                print("Saved key to", filename)
 
 except:
     print('Unlocking root key failed, attempting rootless subkey unlock.')
@@ -87,9 +93,8 @@ except:
                     print('subkey value')
                     subkey_hexbytes = "".join(["%02x" % c for c in sub_key])
 
-                filename = subkey+'-raw.hex'
-                with open(filename, 'w') as f:
-                    f.write(subkey_hexbytes)
+                keypath = Path(gpghomedir+subkey+'-raw.hex')
+                keypath.write(subkey_hexbytes)
                 print("Saved key to", filename)
             # subkey is no longer unlocked
             assert value.is_unlocked is False
