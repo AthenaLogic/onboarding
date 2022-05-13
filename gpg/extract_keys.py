@@ -2,12 +2,13 @@
 import os
 import sys
 import pgpy
-from Pathlib import Path
+from pathlib import Path
+import getpass
 from Crypto.Util.number import long_to_bytes
 
 # This python script can parse the private keys out of OpenPGP keys (ed25519 or RSA).
 # Replace the passphrase with your OpenPGP passphrase.
-rootkey_passphrase = input("root GPG passphrase: ")
+rootkey_passphrase = getpass.getpass("root GPG passphrase: ")
 # If you use a different passphrase for subkeys (such as rootless subkeys) replace
 # the passphrase below with your OpenPGP subkey passphrase
 subkey_passphrase = rootkey_passphrase # "example subkey passphrase"
@@ -52,7 +53,7 @@ try:
 
                 keypath = Path(gpghomedir+subkey+'-raw.hex')
                 keypath.write(subkey_hexbytes)
-                print("Saved key to", filename)
+                print("Saved key to", keypath)
         else:
             print('rootkey value:')
             #Parse ed25519 pgp key
@@ -68,7 +69,7 @@ try:
 
                 keypath = Path(gpghomedir+subkey+'-raw.hex')
                 keypath.write(subkey_hexbytes)
-                print("Saved key to", filename)
+                print("Saved key to", keypath)
 
 except:
     print('Unlocking root key failed, attempting rootless subkey unlock.')
@@ -95,7 +96,7 @@ except:
 
                 keypath = Path(gpghomedir+subkey+'-raw.hex')
                 keypath.write(subkey_hexbytes)
-                print("Saved key to", filename)
+                print("Saved key to", keypath)
             # subkey is no longer unlocked
             assert value.is_unlocked is False
 
