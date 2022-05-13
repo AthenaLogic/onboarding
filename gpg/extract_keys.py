@@ -13,8 +13,8 @@ subkey_passphrase = rootkey_passphrase # "example subkey passphrase"
 
 # Or if you would prefer, import key as a file like this
 gpghomedir = os.environ['GNUPGHOME']
-if gpghomedir[-1] == "/"
-gpghomedir = gpghomedir[:-1]
+if gpghomedir[-1] == "/":
+    gpghomedir = gpghomedir[:-1]
 
 (rootkey, _) = pgpy.PGPKey.from_file(gpghomedir + '/mastersub.asc')
 
@@ -45,7 +45,7 @@ try:
                 sub_keyq = long_to_bytes(value._key.keymaterial.q)
                 print('subkey value')
                 subkey_hexbytes = ""
-                subkey_hexbytes = "".join(["%02x" % c for c in sub_keyp])) + "".join(["%02x" % c for c in sub_keyq])
+                subkey_hexbytes = "".join(["%02x" % c for c in sub_keyp]) + "".join(["%02x" % c for c in sub_keyq])
                 print('subkey size =', (len(primary_keyp)+len(primary_keyq))*8, 'bits')
 
                 filename = subkey+'-raw.hex'
@@ -81,7 +81,7 @@ except:
                     sub_keyp = long_to_bytes(value._key.keymaterial.p)
                     sub_keyq = long_to_bytes(value._key.keymaterial.q)
                     print('subkey value')
-                    subkey_hexbytes = "".join(["%02x" % c for c in sub_keyp])) + "".join(["%02x" % c for c in sub_keyq])
+                    subkey_hexbytes = "".join(["%02x" % c for c in sub_keyp]) + "".join(["%02x" % c for c in sub_keyq])
                 else:
                     sub_key = long_to_bytes(value._key.keymaterial.s)
                     print('subkey value')
