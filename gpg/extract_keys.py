@@ -94,6 +94,7 @@ except:
                     print('subkey value')
                     subkey_hexbytes = "".join(["%02x" % c for c in sub_key])
 
+                print(subkey_hexbytes)
                 keypath = Path(gpghomedir+'/'+subkey+'-raw.hex')
                 keypath.write(subkey_hexbytes)
                 print("Saved key to", keypath)
