@@ -1,111 +1,74 @@
-# The plan
+# Intro
 
-We will do the following steps.
+This guide picks up from gpg-setup.md to add the subkeys to your onlykey. This ensures that the private key data never gets onto your host machines (except the machine used to generate them).
 
-*Reasoning*
-Yubikeys are gpg-cards so they support card-edit and the like. We can hope that only key will add those features in the future, but until then, the onlykey cannot generate subkeys on its own. So we will create a "root" authority, as securely as we can, then issue subkeys from there. We will load those subkeys to the onlykey so that only 
+# Configure your onlykey
+Please follow the online guide provided by the vendor.
 
-# 1. Set up your onlykey
-Follow directions at https://docs.crp.to/usersguide.html#initial-setup
+# Add subkeys to onlykey
 
-- ensure you set "Derived Key User Input Mode" to "Button Press"
+I assume you will be using slots ECC1 and ECC2, so please change them accordingly if needed.
 
-## Notes:
+ECC1 = signing subkey
+ECC2 = encryption (aka decryption) subkey
 
-- OnlyKey supports RSA OpenPGP keys of sizes 2048 and 4096.
-- OnlyKey supports ECC OpenPGP keys of type X25519 and NIST256P1
-- Decryption operations using a 2048 size key takes about 2 seconds, with 4096 size key it takes about 9 seconds.
+## Extract the raw key bytes
+The onlykey-cli expects only the raw 32 bytes of the key (for ed25519 keys), so we have to extract them.
 
-RSA 2048 is deprecated now, so we will use the newer ECC format.
-
-
-# 2. Install required tools
-
-## Install gnupg
-```console
-$ brew install gnupg
-```
-
-## Install onlykey agent
-``` console
-$ pip3 install onlykey-agent
-```
-
-# 3. Create GPG keys
-
-## Create master key on the hardware token
-
-### Use onlykey to generate keys
-We will specify the current unix timestamp to make this harder to recreate.
-
-**It will still ask for the 3 digit challenge code, but because you set "Button Press" you can press any button**
+Assuming you followed the steps for onlykey in the beginning of the gpg-setup.md guide...
 
 ```console
-$ onlykey-gpg init "John Doe <jd@gmail.com>" -t $(date +%s)
-Enter the 3 digit challenge code on OnlyKey to authorize <gpg://John Doe <jd@gmail.com>|ed25519>
-6 5 5
-Enter the 3 digit challenge code on OnlyKey to authorize <gpg://John Doe <jd@gmail.com>|ed25519>
-2 3 3
-gpg: inserting ownertrust of 6
-gpg: checking the trustdb
-gpg: marginals needed: 3  completes needed: 1  trust model: pgp
-gpg: depth: 0  valid:   1  signed:   0  trust: 0-, 0q, 0n, 0m, 0f, 1u
-sec   ed25519 2022-05-12 [SC]
-      273BCC623CB32CE1FA27911804F210A3BF24B54D
-uid           [ultimate] John Doe <jd@gmail.com>
-ssb   cv25519 2022-05-12 [E]
+$ python3 extract_keys.py
 ```
 
-### Add config to shell config file
+This creates 3 files containing the raw key data (which is very sensitive!)
+
+
+
+## Clean up
+
+We will use secure rm `srm` to ensure the sensitive files are deleted. If you are on a memory-only "live boot" system then you don't really need to worry about this, but it won't hurt.
+
 ```console
-$ echo "GNUPGHOME=~/.gnupg/onlykey" >> ~/.zshrc
+$ srm -rf $GNUPGHOME/export
 ```
 
-This GNUPGHOME contains your hardware keyring and agent settings. This agent software assumes all keys are backed by hardware devices so you can’t use standard GPG keys in GNUPGHOME (if you do mix keys you’ll receive an error when you attempt to use them).
+---
 
-If you wish to switch back to your software keys unset GNUPGHOME.
+I have had trouble using the onlykey-cli to add keys, so we'll have to use the app.
 
-### Reset your shell
-
-Load the new gpg config
 ```console
-$ reset
+$ cd $GNUPGHOME
+$ mkdir export
 ```
 
-Verify the gpg agent loaded and can read your keys:
+to set the keyid without having to type it all out
 ```console
-$ gpg -K
-/Users/[your username]/.gnupg/onlykey/pubring.kbx
------------------------------------------------
-sec   ed25519 2022-05-12 [SC]
-      273BCC623CB32CE1FA27911804F210A3BF24B54D
-uid           [ultimate] John Doe <jd@gmail.com>
-ssb   cv25519 2022-05-12 [E]
+$ KEYID=$(gpg -K | grep "\[S\]" | awk '{split($0, array, " "); print array[2]} | tail -c 19')
+$
+
+
+$ gpg --output private_auth.asc --armor --export-secret-key [hex of auth key]
+$ gpg --output private_signing.asc --armor --export-secret-key [hex of sign key]
+$ gpg --output private_encrypt.asc --armor --export-secret-key [hex of encryption key]
 ```
 
-## Load a temp directory
+## Ensure onlykey connects
+
+Plug it in and enter the PIN
 ```console
-$ TMPDIR=$(mktemp -dt gpg)
-$ cd $TMPDIR
-$ pwd
-/var/folders/r9/2ktnrhq15z12k12268gp1l8r0000gn/T/gpg.ohLCfR6D
+$ onlykey-cli wink
 ```
 
-## Create the rest of the keys
+The blue light will flash!
+
+## Transfer subkeys
+
+We won't transfer the root/master key, only the subkeys so we can use them on other machines without actually transferring the private key data.
+
+Make sure you don't overwrite keys you are already using.
+
 ```console
-$ MYEMAIL="jd@gmail.com"
-$ gpg --edit-key --expert $MYEMAIL
-gpg (GnuPG) 2.3.6; Copyright (C) 2021 Free Software Foundation, Inc.
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
+$
 
-Secret key is available.
-
-sec  ed25519/C5837318D04642EE
-     created: 1970-01-01  expires: never       usage: SC
-     trust: ultimate      validity: ultimate
-ssb  cv25519/CFBE654004BC886E
-     created: 1970-01-01  expires: never       usage: E
-[ultimate] (1). Holland Gibson <holland.gibson@gmail.com>
-gpg>
 ```

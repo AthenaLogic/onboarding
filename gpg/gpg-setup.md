@@ -7,7 +7,7 @@ We will do the following steps:
 
 Yubikeys are gpg-cards so they support card-edit and the like. We can hope that only key will add those features in the future, but until then, the onlykey cannot generate subkeys in a way that we need on its own. So we will create a "root" authority, as securely as we can, then issue subkeys from there. We will load those subkeys to the onlykey so that only.
 
-Ideally, on linux (even a hardened loinux VM is a good call), but the mac commands are included when they are separate.
+Ideally, on linux (even a hardened linux VM is a good call), but the mac commands are included when they are separate.
 
 # Install tools
 
@@ -23,7 +23,7 @@ $ brew install gnupg
 
 linux:
 ```console
-# apt -y install wget gnupg2 gnupg-agent dirmngr cryptsetup paperkey pgpdump
+# apt -y install wget gnupg2 gnupg-agent dirmngr cryptsetup paperkey
 ```
 
 Run the "download_files.sh" script to alleviate entering in all the links:
@@ -647,6 +647,7 @@ $ cp gpg-backup.zip /mnt/usb/gpg-backup
 ```console
 $ gpg --keyserver hkps://keys.openpgp.org --send-key $KEYID
 $ gpg --keyserver pgp.mit.edu --send-key $KEYID
+$ gpg --gpg --keyserver hkps://keyserver.ubuntu.com:443 --send-key $KEYID
 ```
 
 After some time, the public key will propagate to [other](https://pgp.key-server.io/pks/lookup?search=doc%40duh.to&fingerprint=on&op=vindex) [servers](https://pgp.mit.edu/pks/lookup?search=doc%40duh.to&op=index).
@@ -661,106 +662,17 @@ After some time, the public key will propagate to [other](https://pgp.key-server
 $ gpg --armor --export $KEYID | tee /mnt/usb/gpg-$KEYID-$(date +%F).asc
 ```
 
-# Add subkeys to onlykey
+# Export subkeys
+## Add subkeys to onlykey
 
-I have had trouble using the onlykey-cli to add keys, so we'll have to use the app.
+If using an onlykey, please follow the onlykey guide (gpg-add-onlykey.md). Otherwise, export the subkeys so you can import them on another machine
 
-```console
-$ cd $GNUPGHOME
-$ mkdir export
-```
-
-to set the keyid without having to type it all out
-```console
-$ KEYID=$(gpg -K | grep "\[S\]" | awk '{split($0, array, " "); print array[2]} | tail -c 19')
-$
-
-
-$ gpg --output private_auth.asc --armor --export-secret-key [hex of auth key]
-$ gpg --output private_signing.asc --armor --export-secret-key [hex of sign key]
-$ gpg --output private_encrypt.asc --armor --export-secret-key [hex of encryption key]
-```
-
-## Ensure onlykey connects
-
-Plug it in and enter the PIN
-```console
-$ onlykey-cli wink
-```
-
-The blue light will flash!
-
-## Transfer subkeys
-
-We won't transfer the root/master key, only the subkeys so we can use them on other machines without actually transferring the private key data.
-
-Make sure you don't overwrite keys you are already using.
+# Export sub keys to file
+If not using an onlykey:
 
 ```console
-$
-
+$ gpg --export-secret-subkeys --armor $KEYID > ~/subkeychain.asc
 ```
------
-
-
-
-# create backups
-In the future we'll use multiple solo keys for this
-```
-
-gpg --export-ownertrust > $TMPDIR/backup_trustdb.txt
-gpg --armor --export-secret-keys <your_email_address> > $TMPDIR/secret_keys_<your_email_address>.asc
-###(enter passphrase if prompted)
-gpg --armor --export-secret-subkeys <your_email_address> > $TMPDIR/secret_subkeys_<your_email_address>.asc
-###(enter passphrase if prompted)
-
-# copy files to a CD/flash drive and keep somewhere VERY SAFE
-```
-
-# Copy key to github
-`gpg --armor --export $MYEMAIL | pbcopy`
-
-# Tell local git agent to use your GPG keys
-```
-gpg --list-secret-keys --keyid-format LONG $MYEMAIL
-git config --global user.signingkey 6DCB9294B2139D96 # the one with [S]
-git config --global gpg.program gpg
-git config --global commit.gpgsign true
-```
-
-If you have other repos that you want to use other signing keys with, you can just omit the `--global` and run that code in every repo.
-
-# Publish your GPG key
-Add the following to gpg.conf:
-`keyserver hkps://keys.openpgp.org `
-
-
-Publish your email
-```
-gpg --export $MYEMAIL | curl -T - https://keys.openpgp.org
-```
-Complete verification
-
-```
-gpg --refresh-keys
-```
-
-```
-gpg --refresh-keys
-```
-
-Practice finding my gpg key:
-```console
-$ gpg --auto-key-locate keyserver --locate-keys holland.gibson@gmail.com
-pub   ed25519 2022-04-20 [SC]
-      6E25387C4EFBBED11707867194754B0BB673C16A
-uid           [ultimate] G. Holland Gibson (2022-01-20) <holland.gibson@gmail.com>
-sub   cv25519 2022-04-20 [E]
-sub   ed25519 2022-04-20 [S] [expires: 2023-04-20]
-sub   ed25519 2022-04-20 [A] [expires: 2023-04-20]
-sub   cv25519 2022-04-20 [E] [expires: 2023-04-20]
-```
-
 
 # Revoking keys
 Once created, GPG keys cannot be edited. You have to revoke and start over, notifying the keyserver (and github)
