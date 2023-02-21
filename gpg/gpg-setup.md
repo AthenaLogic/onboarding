@@ -746,6 +746,18 @@ rm -rf $TMPDIR
 
 You will want to keep your old revoked key for decrypting messages that use the old key. If it really annoys you, you can always export it (see backing up above) and keep it for when you need it.
 
+# Rotating Subkeys
+You can either create new subkeys, or extend the expiration on them. Which can be done at any time:
+   
+```
+gpg --list-keys
+gpg --edit-keys (key id)
+gpg> key 1
+gpg> expire
+(follow prompts)
+gpg> save
+gpg --keyserver pgp.mit.edu --send-keys (key id)
+```
 
 Guides loosely followed:
 - https://dev.to/barrage/step-by-step-guide-on-how-to-set-up-yubikey-with-gpg-subkeys-5an8
