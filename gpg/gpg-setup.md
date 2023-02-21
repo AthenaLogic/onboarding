@@ -746,7 +746,13 @@ rm -rf $TMPDIR
 
 You will want to keep your old revoked key for decrypting messages that use the old key. If it really annoys you, you can always export it (see backing up above) and keep it for when you need it.
 
-# Rotating Subkeys
+# Rotating Keys
+## Renewking Subkeys
+
+Renewing sub-keys is simpler: you do not need to generate new keys, move keys to the OnlyKey, or update any SSH public keys linked to the GPG key. All you need to do is to change the expiry time associated with the public key (which requires access to the master key you just loaded) and then to export that public key and import it on any computer where you wish to use the GPG (as distinct from the SSH) key.
+
+To change the expiration date of all sub-keys, start by selecting all keys:
+
 You can either create new subkeys, or extend the expiration on them. Which can be done at any time:
    
 ```
@@ -758,6 +764,94 @@ gpg> expire
 gpg> save
 gpg --keyserver pgp.mit.edu --send-keys (key id)
 ```
+
+Export public key: 
+```
+$ gpg --armor --export $KEYID > gpg-$KEYID-$(date +%F).asc
+```
+
+Transfer that public key to the computer from which you use your GPG key, and then import it with:
+
+```
+$ gpg --import gpg-0x*.asc
+```
+
+This will extend the validity of your GPG key and will allow you to use it for SSH authorization. Note that you do not need to update the SSH public key located on remote servers.
+
+## Rotating keys
+
+Rotating keys is more a bit more involved.  First, follow the original steps to generate each sub-key. Previous sub-keys may be kept or deleted from the identity.
+
+Finish by exporting new keys:
+
+```console
+$ gpg --armor --export-secret-keys $KEYID > $GNUPGHOME/mastersub.key
+
+$ gpg --armor --export-secret-subkeys $KEYID > $GNUPGHOME/sub.key
+```
+
+Copy the **new** temporary working directory to encrypted offline storage, which should still be mounted:
+
+```console
+$ sudo cp -avi $GNUPGHOME /mnt/encrypted-storage
+```
+
+There should now be at least two versions of the master and sub-keys backed up:
+
+```console
+$ ls /mnt/encrypted-storage
+lost+found  tmp.ykhTOGjR36  tmp.2gyGnyCiHs
+```
+
+Unmount and close the encrypted volume:
+
+```console
+$ sudo umount /mnt/encrypted-storage
+
+$ sudo cryptsetup luksClose /dev/mapper/secret
+```
+
+Export the updated public key:
+
+```console
+$ sudo mkdir /mnt/public
+
+$ sudo mount /dev/mmcblk0p2 /mnt/public
+
+$ gpg --armor --export $KEYID | sudo tee /mnt/public/$KEYID-$(date +%F).asc
+
+$ sudo umount /mnt/public
+```
+
+Disconnect the storage device and follow the original steps to transfer new keys (4, 5 and 6) to the YubiKey, replacing existing ones. Reboot or securely erase the GPG temporary working directory.
+
+
+# Adding notations
+
+Notations can be added to user ID(s) and can be used in conjunction with [Keyoxide](https://keyoxide.org) to create [OpenPGP identity proofs](https://keyoxide.org/guides/openpgp-proofs).
+
+Adding notations requires access to the master key so we can follow the setup instructions taken from this [section](#setup-environment) of this guide.
+
+Please note that there is no need to connect the Yubikey to the setup environment and that we do not need to generate new keys, move keys to the YubiKey, or update any SSH public keys linked to the GPG key.
+
+After having completed the environment setup, it is possible to follow any of the guides listed under "Adding proofs" in the Keyoxide ["Guides"](https://keyoxide.org/guides/) page __up until the notation is saved using the `save` command__.
+
+At this point the public key can be exported:
+
+```console
+$ gpg --export $KEYID > pubkey.asc
+```
+
+The public key can now be transferred to the computer where the GPG key is used and it is imported with:
+
+```console
+$ gpg --import pubkey.asc
+```
+
+N.B.: The `showpref` command can be issued to ensure that the notions were correctly added.
+
+It is now possible to continue following the Keyoxide guide and upload the key to WKD or to keys.openpgp.org.
+
 
 Guides loosely followed:
 - https://dev.to/barrage/step-by-step-guide-on-how-to-set-up-yubikey-with-gpg-subkeys-5an8
