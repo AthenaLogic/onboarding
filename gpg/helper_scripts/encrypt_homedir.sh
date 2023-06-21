@@ -18,8 +18,9 @@ fi
 
 cat <<EOF | sudo tee /usr/local/bin/encrypt_homedir_step2.sh  
 #!/usr/bin/env bash
+whoami
 
-if [ $(whoami) = "root" ]; then
+if [ "\$(whoami)" = "root" ]; then
 
 #the user to encrypt is the second to last user
 
@@ -36,7 +37,7 @@ echo "You MUST log out and login as \$enc_user before rebooting!!!"
 echo "Please run ecryptfs-unwrap-passphrase (in ~/backup-crypt-key.sh after logging back in"
 
 else
-echo "You must execute this as root: try `sudo encrypt_homedir_step2.sh`"
+echo "You must execute this as root: try 'sudo encrypt_homedir_step2.sh'"
 fi
 EOF
 
