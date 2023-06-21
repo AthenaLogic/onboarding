@@ -33,8 +33,8 @@ echo "You MUST log out and login as \$enc_user before rebooting!!!"
 echo "Please run ecryptfs-unwrap-passphrase (in ~/backup-crypt-key.sh after logging back in"
 EOF
 
-echo "#!/bin/bash \necryptfs-unwrap-passphrase" > $HOME/backup-crypt-key.sh
-chmod +x $HOME/backup-crypt.sh
+echo -e "#!/bin/bash \necryptfs-unwrap-passphrase" > $HOME/backup-crypt-key.sh
+chmod +x $HOME/backup-crypt-key.sh
 
 sudo chown root:root /home/temp/encrypt_homedir_step2.sh
 sudo chmod u+s /home/temp/encrypt_homedir_step2.sh
