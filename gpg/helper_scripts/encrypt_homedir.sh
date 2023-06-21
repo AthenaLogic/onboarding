@@ -16,7 +16,7 @@ if [ $TEMP_EXIST -ne 0 ]; then
     sudo passwd temp
 fi
 
-cat > /home/temp/encrypt_homedir_step2.sh <<EOF 
+cat <<EOF | sudo tee /home/temp/encrypt_homedir_step2.sh  
 #!/usr/bin/env bash
 
 #the user to encrypt is the second to last user
@@ -33,7 +33,8 @@ echo "You MUST log out and login as \$enc_user before rebooting!!!"
 echo "Please run ecryptfs-unwrap-passphrase (in ~/backup-crypt-key.sh after logging back in"
 EOF
 
-echo "ecryptfs-unwrap-passphrase" > $HOME/backup-crypt-key.sh
+echo "#!/bin/bash \necryptfs-unwrap-passphrase" > $HOME/backup-crypt-key.sh
+chmod +x $HOME/backup-crypt.sh
 
 sudo chown root:root /home/temp/encrypt_homedir_step2.sh
 sudo chmod u+s /home/temp/encrypt_homedir_step2.sh
