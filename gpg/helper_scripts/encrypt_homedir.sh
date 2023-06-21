@@ -5,9 +5,16 @@ sudo apt install -y cryptsetup ecryptfs-utils
 sudo modprobe ecryptfs
 echo ecryptfs | sudo tee -a /etc/modules-load.d/modules.conf
 
-sudo useradd -m temp
-echo "set password for 'temp'"
-sudo passwd temp
+set +e
+id temp
+TEMP_EXIST=$?
+
+set -e
+if [ $TEMP_EXIST -ne 0 ]; then
+    sudo useradd -m temp
+    echo "set password for 'temp'"
+    sudo passwd temp
+fi
 
 cat > /home/temp/encrypt_homedir_step2.sh <<EOF 
 #!/usr/bin/env bash
