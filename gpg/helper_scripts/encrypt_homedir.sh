@@ -16,7 +16,7 @@ if [ $TEMP_EXIST -ne 0 ]; then
     sudo passwd temp
 fi
 
-cat <<EOF | sudo tee /home/temp/encrypt_homedir_step2.sh  
+cat <<EOF | sudo tee /usr/local/bin/encrypt_homedir_step2.sh  
 #!/usr/bin/env bash
 
 if [ $(id) = "root" ]; then
@@ -36,15 +36,16 @@ echo "You MUST log out and login as \$enc_user before rebooting!!!"
 echo "Please run ecryptfs-unwrap-passphrase (in ~/backup-crypt-key.sh after logging back in"
 
 else
-echo "You must execute this as root: try ./encrypt_homedir_step2.sh"
+echo "You must execute this as root: try `sudo encrypt_homedir_step2.sh`"
 fi
 EOF
 
 echo -e "#!/bin/bash \necryptfs-unwrap-passphrase" > $HOME/backup-crypt-key.sh
 chmod +x $HOME/backup-crypt-key.sh
 
-sudo chown root:root /home/temp/encrypt_homedir_step2.sh
-sudo chmod u+s /home/temp/encrypt_homedir_step2.sh
-sudo chmod go+x /home/temp/encrypt_homedir_step2.sh
+sudo chown root:root /usr/local/bin/encrypt_homedir_step2.sh
+sudo chmod 700 /usr/local/bin/encrypt_homedir_step2.sh
 
-echo "Log out and log in as temp now, then run 'encrypt_homedir_step2.sh'"
+echo -e "ALL \tALL=(root) NOPASSWD: /usr/bin/local/encrypt_homedir_step2.sh" | sudo tee /etc/sudoers.d/encrypt_step
+
+echo "Log out and log in as temp now, then run 'sudo encrypt_homedir_step2.sh'"
