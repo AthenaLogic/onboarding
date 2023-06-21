@@ -46,6 +46,6 @@ chmod +x $HOME/backup-crypt-key.sh
 sudo chown root:root /usr/local/bin/encrypt_homedir_step2.sh
 sudo chmod 700 /usr/local/bin/encrypt_homedir_step2.sh
 
-echo -e "ALL \tALL=(root) NOPASSWD: /usr/bin/local/encrypt_homedir_step2.sh" | sudo tee /etc/sudoers.d/encrypt_step
+echo -e "ALL \tALL=(root) NOPASSWD: /usr/local/bin/encrypt_homedir_step2.sh" | sudo tee /etc/sudoers.d/encrypt_step
 
 echo "Log out and log in as temp now, then run 'sudo encrypt_homedir_step2.sh'"
