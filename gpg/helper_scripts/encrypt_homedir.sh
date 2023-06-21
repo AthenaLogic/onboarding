@@ -20,7 +20,7 @@ cat <<EOF | sudo tee /home/temp/encrypt_homedir_step2.sh
 #!/usr/bin/env bash
 
 #the user to encrypt is the second to last user
-cat 
+
 enc_user=\$(cat /etc/passwd | tail -n 2 | head -n 1 | grep -Eo '^[a-zA-Z0-9]+')
 read -p "Are you sure you want to encrypt username: \$enc_user? This is a \
 destructive action and cannot easily be undone." -n 1 -r
