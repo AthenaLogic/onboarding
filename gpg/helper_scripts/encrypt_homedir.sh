@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 
-sudo apt install -y cryptsetup ecryptfs-utils
+sudo apt install -y cryptsetup ecryptfs-utils rsync
 sudo modprobe ecryptfs
 echo ecryptfs | sudo tee -a /etc/modules-load.d/modules.conf
 
