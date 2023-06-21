@@ -19,7 +19,7 @@ fi
 cat <<EOF | sudo tee /usr/local/bin/encrypt_homedir_step2.sh  
 #!/usr/bin/env bash
 
-if [ $(id) = "root" ]; then
+if [ $(whoami) = "root" ]; then
 
 #the user to encrypt is the second to last user
 
