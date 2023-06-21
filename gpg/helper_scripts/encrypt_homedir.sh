@@ -19,8 +19,11 @@ fi
 cat <<EOF | sudo tee /home/temp/encrypt_homedir_step2.sh  
 #!/usr/bin/env bash
 
+if [ $(id) = "root" ]; then
+
 #the user to encrypt is the second to last user
 
+set -e
 enc_user=\$(cat /etc/passwd | tail -n 2 | head -n 1 | grep -Eo '^[a-zA-Z0-9]+')
 read -p "Are you sure you want to encrypt username: \$enc_user? This is a \
 destructive action and cannot easily be undone." -n 1 -r
@@ -31,6 +34,10 @@ fi
 
 echo "You MUST log out and login as \$enc_user before rebooting!!!"
 echo "Please run ecryptfs-unwrap-passphrase (in ~/backup-crypt-key.sh after logging back in"
+
+else
+echo "You must execute this as root: try ./encrypt_homedir_step2.sh"
+fi
 EOF
 
 echo -e "#!/bin/bash \necryptfs-unwrap-passphrase" > $HOME/backup-crypt-key.sh
@@ -38,5 +45,6 @@ chmod +x $HOME/backup-crypt-key.sh
 
 sudo chown root:root /home/temp/encrypt_homedir_step2.sh
 sudo chmod u+s /home/temp/encrypt_homedir_step2.sh
+sudo chmod go+x /home/temp/encrypt_homedir_step2.sh
 
 echo "Log out and log in as temp now, then run 'encrypt_homedir_step2.sh'"
