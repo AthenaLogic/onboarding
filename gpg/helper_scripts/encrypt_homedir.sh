@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
+set -ex
 
 sudo apt install -y cryptsetup ecryptfs-utils
 sudo modprobe ecryptfs
 echo ecryptfs | sudo tee -a /etc/modules-load.d/modules.conf
 
-sudo useradd temp
+sudo useradd -m temp
 echo "set password for 'temp'"
 sudo passwd temp
 

@@ -2,6 +2,7 @@
 
 cd ~
 
+set -ex
 sudo apt install -y wget gnupg2 gnupg-agent dirmngr cryptsetup paperkey secure-delete
 
 wget https://raw.githubusercontent.com/trustcrypto/trustcrypto.github.io/pages/49-onlykey.rules
