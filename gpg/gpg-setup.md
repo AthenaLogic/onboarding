@@ -43,6 +43,11 @@ $ ./helper_scripts/onlykey_setup.sh
 $ sudo reboot
 ```
 
+Download python reqs
+```
+$ python3 -m pip install -r requirements.txt
+```
+
 # Harden the device
 ## set a long password
 Set a long password for the OS as this directly protects your encrypted disk
