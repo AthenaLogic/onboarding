@@ -1,56 +1,61 @@
 # The plan
 
 We will do the following steps:
-
+1. download configs
+2. harden computer
+3. create gpg master keys
+4. backup and create revocation certs
+5. distribute keys
 
 ### *Reasoning*
 
 Yubikeys are gpg-cards so they support card-edit and the like. We can hope that only key will add those features in the future, but until then, the onlykey cannot generate subkeys in a way that we need on its own. So we will create a "root" authority, as securely as we can, then issue subkeys from there. We will load those subkeys to the onlykey so that only.
 
 Ideally, on linux (even a hardened linux VM is a good call), but the mac commands are included when they are separate.
+Doing this on a VM via virtualbox, or UTM is a good compromise between making this accessible, security and stability (i.e. not losing the files, being able to do changes down the road, etc), but a computer that you don't need (like an old laptop) is most ideal.
 
-# Install tools
+If using a VM, the latest "Debian" image is best supported:
+
+# 1. Download and Install tools
 
 First clone this repo:
 ```bash
 git clone https://github.com/AthenaLogic/onboarding.git
 ```
 
+Then run the helper script for your OS:
+
 mac:
 ```console
-$ brew install gnupg hopenpgp-tools paperkey secure-delete
+$ ./helper_scripts/macos_setup.sh
 ```
 
 linux:
 ```console
-# apt -y install wget gnupg2 gnupg-agent dirmngr cryptsetup paperkey hopenpgp-tools secure-delete
-```
-
-Run the "download_files.sh" script to alleviate entering in all the links:
-i.e.
-```console
-$ cd ~
-$ wget https://raw.githubusercontent.com/trustcrypto/trustcrypto.github.io/pages/49-onlykey.rules
-$ wget https://raw.githubusercontent.com/drduh/config/master/gpg.conf
+$ ./helper_scripts/linux_setup.sh
 ```
 
 If you are going to use this hardware to transfer keys to the onlykey (a good idea), then you'll also need the following tools:
 https://docs.crp.to/onlykey-agent.html#installation
 
 ```console
-$ cd ~
-$ sudo -s
-# apt update && apt upgrade
-# apt install python3-pip python3-tk libusb-1.0-0-dev libudev-dev
-# exit
-$ pip3 install -r onboarding/gpg/requirements.txt
-$ sudo -s
-# cp 49-onlykey.rules /etc/udev/rules.d/
-# udevadm control --reload-rules && udevadm trigger
-# reboot
+$ ./helper_scripts/onlykey_setup.sh
+$ sudo reboot
 ```
 
 # Harden the device
+## set a long password
+Set a long password for the OS as this directly protects your encrypted disk
+
+i.e. the `passwd` command
+
+## Disconnect the network
+Debian linux example:
+`sudo ip link set enp0s1 down`
+then edit `/etc/network/interfaces` to comment out the non-loopback interfaces.
+
+## Disconnect any unecessary peripherals, usb disks, etc. 
+If you want to transfer files via usb, best bet is to use a brand new usb disk from a reputable seller.
 
 ## Work from a temp directory
 This is ideal, as all files will get wiped on a reboot.
@@ -60,7 +65,7 @@ i.e.
 export GNUPGHOME=$(mktemp -d -t gnupg_$(date +%s)
 ```
 
-However, if you are like me and are booting off a disk you will protect via other means (like in a safe) then we will keep a home workspace
+However, if you are using a vm and are booting off an encrypted disk you will protect via other means (like in a safe) then we will keep a home workspace
 
 ```console
 $ export GNUPGHOME=~/gnupg-workspace
