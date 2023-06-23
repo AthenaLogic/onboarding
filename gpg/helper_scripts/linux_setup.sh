@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
-cd ~
 
 set -ex
 sudo apt install -y wget gnupg2 gnupg-agent dirmngr cryptsetup paperkey secure-delete
 
 ./download_files.sh
+
+cd ~
 
 # mkdir -p ~/bin
 # cd -p ~/bin
