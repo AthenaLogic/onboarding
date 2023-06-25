@@ -2,7 +2,7 @@
 
 
 set -ex
-sudo apt install -y wget gnupg2 gnupg-agent dirmngr cryptsetup paperkey secure-delete
+sudo apt install -y wget gnupg2 gnupg-agent dirmngr cryptsetup paperkey secure-delete zip
 
 ./download_files.sh
 

@@ -1,3 +1,2 @@
 onlykey-agent
-pycrypto
 pgpy

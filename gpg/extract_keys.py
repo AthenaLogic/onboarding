@@ -4,7 +4,11 @@ import sys
 import pgpy
 from pathlib import Path
 import getpass
-from Crypto.Util.number import long_to_bytes
+# from Crypto.Util.number import long_to_bytes
+
+def long_to_bytes(value):
+    some_bytes = value.to_bytes(32, sys.byteorder)
+    return bytearray(some_bytes)
 
 # This python script can parse the private keys out of OpenPGP keys (ed25519 or RSA).
 # Replace the passphrase with your OpenPGP passphrase.

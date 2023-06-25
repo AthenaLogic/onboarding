@@ -39,13 +39,12 @@ If you are going to use this hardware to transfer keys to the onlykey (a good id
 https://docs.crp.to/onlykey-agent.html#installation
 
 ```console
+$ python3 -m venv venv
+$ source venv/bin/activate
+(venv) $ pip3 install -r requirements.txt
+(venv) $ deactivate
 $ ./helper_scripts/onlykey_setup.sh
 $ sudo reboot
-```
-
-Download python reqs
-```
-$ python3 -m pip install -r requirements.txt
 ```
 
 # Harden the device
@@ -166,15 +165,6 @@ Please select what kind of key you want:
 Your selection? 11
 Possible actions for a RSA key: Sign Certify Authenticate
 Current allowed actions: Sign Certify
-
-   (S) Toggle the sign capability
-   (E) Toggle the encrypt capability
-   (A) Toggle the authenticate capability
-   (Q) Finished
-
-Your selection? s
-Possible actions for a RSA key: Sign Certify Authenticate
-Current allowed actions: Certify
 
    (S) Toggle the sign capability
    (E) Toggle the encrypt capability
@@ -664,6 +654,14 @@ $ sudo cp -avi $GNUPGHOME ~/gpg-backup/
 $ zip -r -e gpg-backup.zip ~/gpg-backup/
 $ cp gpg-backup.zip /mnt/usb/
 ```
+
+You could also just use symmetric gpg (password only) after creating a tarball
+```
+tar czvf ~/gpg-backup.tar.gz ~/gpg-backup 
+gpg -c ~/gpg-backup.tar.gz
+    
+```
+
 
 # Upload keys to keyserver
 
